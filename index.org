@@ -2,75 +2,152 @@
 #+TITLE: RRF Development Board
 #+LANGUAGE: en
 #+EMAIL: tnesland at gmail dot com
-#+OPTIONS: H:3 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
 #+STYLE: </style><link rel="stylesheet" href="./css/org.css" type="text/css" />
 
 
-* Active Projects
-#+srcname: projectFiles
-#+begin_src sh :results replace
- ls ~/Documents/projects
-#+end_src
+* Components
 
-#+results: projectFiles
-| CPNoAct              |
-| ErnieJeong           |
-| MedPCParser          |
-| PeanutButter         |
-| RRF                  |
-| RRF_DevelopmentBoard |
-| klipbox              |
-| scratchpad           |
+** TK-Session
+   
+   Acts as the controller object for the entire session.
+   
+   - [[./release/tk-session][Downloads]]
+   - [[./projects/tk-session/user-documetation.html#Installation][Installation / Update Process]]
+   - [[./projects/tk-session/user-documentation.html][User Documentation]]
+   - [[./projects/tk-session/index.html][Developer Documentation and Other Resources]]
 
-* Downloads
-** Session Controller
-   - [[http://github.com/tnez/TK-Session/tree/v0.5.1][version 0.5.1]]
-   - [[http://github.com/tnez/TK-Session/tree/v0.5][version 0.5]]
-** Utility Framework
-   - [[http://github.com/tnez/TK-Utility/tree/0.5.2][version 0.5.2]]
-   - [[http://github.com/tnez/TK-Utility/tree/v0.5.1][version 0.5.1]]
-   - [[http://github.com/tnez/TK-Utility/tree/v0.4][version 0.4]]
+** TK-Utility
+
+   Utility framework shared between session controller and individual
+   component bundles.
+
+   - [[./release/tk-utility][Downloads]] 
+   - [[./projects/tk-utility/user-documetation.html#Installation][Installation / Update Process]] 
+   - [[./projects/tk-utility/index.html][Developer Documentation and Other Resources]]
+
 ** Bundles
-   - ARS
-   - CRT
-   - DSST
-   - LOOP
-   - NBACK
-   - NOTE
-   - PAUSE
-   - VAS
-   - WFCLICK
+
+   Bundle Package
+    - [[./release/bundle-package][Download]]
+    - [[./projects/bundles/index.html#Installation][Installation / Update Process]]
+    - [[How do I know if my bundles are up to date?][Check If Package Is Up-To-Date]]
+
+   Individual Bundles
+    - [[./release/bundles][Download]]
+    - [[./projects/bundles/index.html#Installation][Installation / Update Process]]
+
+   Bundle Template
+    - [[./release/template][Download]]
+    - [[./projects/template/index.html#Installation][Installation / Update Process]]
+    - [[./project/template/index.html][Step-By-Step Guide For Creating A Bundle]]
+
+** Blood Pressure Controller
+
+   Controller for <i>DINAMAP PRO 200 </i>
+
+   - [[./release/bp][Downloads]]
+   - [[./projects/bp/user-documentation.html#Installation][Installation / Update Process]]
+   - [[./projects/bp/user-documentation.html][User Documentation]]
+   - [[./projects/bp/index.html][Developer Documentation and Other Resources]]
+
+* FAQ
+
+** What is the procedure to install every component on a new machine?
+   
+   1) Install the shared utility framework. See [[./projects/tk-utility/user-documentation.html][notes]].
+   2) Install the session controller. See [[./projects/tk-session/user-documentation.html][notes]].
+   3) If bundles are out of date ([[How do I know if my bundles are up to date?][How do I know if my bundles are up
+      to date?]]), download and install current bundle package. See
+      [[./projects/bundles/index.html][notes]].
+
+** The session is jumping to a component in the middle of the session instead of starting at the beginning. How do I prevent this?
+   
+   This is the expected recovery behavior for the session. Most
+   likely a registry file still exists in the session's temporary
+   directory and it is trying to recover because this is the defined
+   recovery condition. If you want to reset, *note that you will lose
+   any information from the crashed session*, you will need to find
+   and remove:
+
+   : /Applications/TK-Session.app/Contents/_TEMP/regfile.plist
+
+   After this, restarting the program should result in a fresh start.
+   
+** The program is crashing, but I'm not sure why. Where can I find helpful information?
+   
+   The session controller logs important information to the
+   Console. In the event of a crash, it is the session controller's
+   intention to log useful information for further analysis. You can
+   access this information by opening Console application found at:
+
+   : /Applications/Utilities/Console.app
+
+** How do I know if my bundles are up to date?
+   
+   This currently requires many steps . . . I'm debating whether I
+   should write a helper function for this. You basically have to
+   look into the Contents directory of each bundle and read the
+   version number from the plist file.
+
 * User Manual
-** DONE HowTo: A Complete Installation From Scratch
+  :LOGBOOK:
+  - Note taken on [2011-04-28 Thu 10:17] \\
+    I need to verify links before I publish all this.
+  :END:
+
+** Fresh Install
+
 *** Setup the shared utility framework
+
     - Download TK-Utility: [[./release/tk-utility/tk-utility-current.zip][current release]]
     - Move the file (unpacking if needed) to /Library/Frameworks
-*** Setup the session controller
-    - Download TK-Session: [[./release/tk-session/tk-session-current.zip][current release]]
-    - Move the file (unpacking if needed) to /Applications
-*** Create a session configuration file
-    - see notes on creating a session configuration file [[./notes][===>]]
-** NEXT HowTo: Update Session Controller
-   :LOGBOOK:
-   - Note taken on [2011-04-27 Wed 15:43] \\
-     I'm just testing the ability to add notes with the
-     : C-c C-z
-     shortcut... How did it turn-out?
-   :END:
-** NEXT HowTo: Update Utility Framework
-   :LOGBOOK:
-   - Note taken on [2011-04-27 Wed 15:50] \\
-     This is another note.
-   :END:
-** NEXT HowTo: Install a New Component Bundle
-** NEXT HowTo: Update a Component Bundle
-** NEXT FAQ
-* Developer Documentation
-** HowTo: Develop a New Component Bundle
-** Documentation: Utility Framework
-** Documentation: Session Controller
-* Issue Tracking
-** Bugs
-** Feature Requests
-** Bundle Requests
 
+*** Setup the session controller
+
+    - Download TK-Session: [[./release/tk-session/tk-session-current.zip][current release]
+    - Move the file (unpacking if needed) to /Applications
+
+*** Create a session configuration file
+
+    - see notes on creating a session configuration file [[./notes][===>]]
+
+** Update Session Controller
+
+   - Download the session controller from: [[./release/tk-session/tk-session-current.zip][current release]]
+   - Move the file (unpacking if needed) to:
+     : /Applications
+   - Download most current bundle pack (this may be the same version
+     as is already included in the session.
+    
+** Update Utility Framework
+
+   - Download the utility framework from: [[./release/tk-utility/tk-utility-current.zip][current release]]
+   - Move the file (unpacking if needed) to:
+     : /Library/Frameworks
+   - Update to newest version of session controller if not already in
+     place
+
+** Install/Update Component Bundle
+
+*** Option 1 -- Install/Update Entire Bundle Pack
+    
+    - Download the current bundle pack: [[./releases/bundles/bundle-pack-current.zip][current release]]
+    - Move the file (unpacking if needed) to:
+      : /Applications/TK-Session.app/Contents/Plugins
+      (creating the directory if it does not already exist)
+
+*** Option 2 -- Install/Update Specific Bundle
+
+    - Download the latest release of your target bundle from: [[./release/bundles/index.html][all bundles]]
+    - Move the file (unpacking if needed) to:
+      : /Applications/TK-Session.app/Contents/Plugins
+
+** NEXT Create a Session Configuration File
+
+   The session configuration file is the driving force behind the
+   session. It should contain all information required to determine
+   the structure of a given session.
+
+   You can view documentation in the browser as [[./dox/how-to-create-a-session-config-file.html][HTML]] or download as a
+   [[./dox/how-to-create-a-session-config-file.pdf][PDF]].

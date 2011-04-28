@@ -1,0 +1,9 @@
+
+* CANCELLED Finish Ruby Link Script
+
+  | Status | Item                              | Notes |
+  |--------+-----------------------------------+-------|
+  | X      | List directory contents as string |       |
+  | O      | Convert strings to links          |       |
+  | O      | Design remaining structure        |       |
+

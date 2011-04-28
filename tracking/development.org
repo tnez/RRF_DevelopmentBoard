@@ -1,0 +1,39 @@
+
+* NEXT Regfile Should Write To Disk On Background Thread
+  
+  Current implementation of the registry file writes to disk on the
+  main thread after each set-value operation. While this is functional
+  it is hardly ideal. If the regfile is to be used effectively, its
+  operations must be transparent. No observable latency should be
+  created.
+
+  In order to accomplish this the following tasks should be completed:
+
+  - move regfile from element of TK-Session to its own class
+  - create a watch thread that will check on specified interval if
+    registry is dirty
+  - registry access methods should return immutable copies of values
+    in order to maintain thread safety
+  - registry setter methods should be put inside synchronize blocks
+
+* NEXT Notification Bundle That Can Format Strings Using Registry Values
+  
+  A bundle that will display a notification, where the notification
+  will be a string with possible substitutions using registry
+  values. The bundle should also have an option to require a
+  configurable 'admin' key-combination before allowing exit.
+
+* NEXT TK-Session User Documentation
+
+* NEXT Bundle Developer Documentation
+
+* NEXT Code Documentation for TK-Session
+
+* NEXT Code Documentation for TK-Utility
+
+* NEXT User Documentation for TK-Utility Update Process
+
+* NEXT User Documentation for TK-Session Update Process
+
+* NEXT User Documentation for Bundle Update / Install Process
+
