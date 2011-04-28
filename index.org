@@ -5,8 +5,22 @@
 #+OPTIONS: H:3 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
 #+STYLE: </style><link rel="stylesheet" href="./css/org.css" type="text/css" />
 
-*Documentation and Issue Tracking for Software Related to the
- Residential Research Facility*
+
+* Active Projects
+#+srcname: projectFiles
+#+begin_src sh :results replace
+ ls ~/Documents/projects
+#+end_src
+
+#+results: projectFiles
+| CPNoAct              |
+| ErnieJeong           |
+| MedPCParser          |
+| PeanutButter         |
+| RRF                  |
+| RRF_DevelopmentBoard |
+| klipbox              |
+| scratchpad           |
 
 * Downloads
 ** Session Controller
@@ -27,12 +41,30 @@
    - VAS
    - WFCLICK
 * User Manual
-** HowTo: A Complete Installation From Scratch
-** HowTo: Update Session Controller
-** HowTo: Update Utility Framework
-** HowTo: Install a New Component Bundle
-** HowTo: Update a Component Bundle
-** FAQ
+** DONE HowTo: A Complete Installation From Scratch
+*** Setup the shared utility framework
+    - Download TK-Utility: [[./release/tk-utility/tk-utility-current.zip][current release]]
+    - Move the file (unpacking if needed) to /Library/Frameworks
+*** Setup the session controller
+    - Download TK-Session: [[./release/tk-session/tk-session-current.zip][current release]]
+    - Move the file (unpacking if needed) to /Applications
+*** Create a session configuration file
+    - see notes on creating a session configuration file [[./notes][===>]]
+** NEXT HowTo: Update Session Controller
+   :LOGBOOK:
+   - Note taken on [2011-04-27 Wed 15:43] \\
+     I'm just testing the ability to add notes with the
+     : C-c C-z
+     shortcut... How did it turn-out?
+   :END:
+** NEXT HowTo: Update Utility Framework
+   :LOGBOOK:
+   - Note taken on [2011-04-27 Wed 15:50] \\
+     This is another note.
+   :END:
+** NEXT HowTo: Install a New Component Bundle
+** NEXT HowTo: Update a Component Bundle
+** NEXT FAQ
 * Developer Documentation
 ** HowTo: Develop a New Component Bundle
 ** Documentation: Utility Framework
