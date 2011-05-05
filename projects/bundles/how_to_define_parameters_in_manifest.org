@@ -1,0 +1,150 @@
+
+#+TITLE: How To Define Parameters In The Manifest File
+#+LANGUAGE: en
+#+EMAIL: tnesland at gmail dot com
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+STYLE: </style><link rel="stylesheet" href="../../../css/org.css" type="text/css" />
+
+* Constructing the Manifest File
+  - the manifest file is found in the Resources group under the name
+    RRF<BundleName>Manifest.plist
+  - in the manifest file, for each parameter, an entry must be made in
+    the TKComponentOptions array according to the following guidelines
+    for the inteded type of parameter:
+
+** String
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String>
+    - the name displayed to the user
+*** type <Number> 0
+*** default <String>
+    - whatever you want the initial value to be, can be null
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** allowsNull <Boolean> check/uncheck
+    - this will more often than not be no (uncheck)
+*** help <String>
+    - information displayed to the user when hovering mouse
+
+** Number
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String>
+    - the name displayed to the user
+*** type <Number> 1
+*** default <Number>
+    - whatever you want the initial value to be, can be null
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** allowsNull <Boolean> check/uncheck
+    - this will more often than not be no (uncheck)
+*** help <String>
+    - information displayed to the user when hovering mouse
+*** (optional) min <Number>
+    - if you want to specify a lower bound, include this parameter
+*** (optional) max <Number>
+    - if you want to specify an upper bound, include this parameter
+** Boolean
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String> ...
+    - the name displayed to the user
+*** type <Number> 2
+*** default <Boolean> check/uncheck
+    - whatever you want the initial value to be
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** help <String> ...
+    - information displayed to the user when hovering mouse
+
+** Path
+   This is a path to a file or directory
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String>
+    - the name displayed to the user
+*** type <Number> 3
+*** default <String>
+    - whatever you want the initial value to be, can be null
+*** isDirectory <Boolean> check/uncheck
+    - if you intend the user to select a directory check, otherwise
+      the intention if for the user to select a file, leave unchecked
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** allowsNull <Boolean> check/uncheck
+    - this will more often than not be no (uncheck)
+*** help <String>
+    - information displayed to the user when hovering mouse
+
+** Drop-down-list
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String>
+    - the name displayed to the user
+*** type <Number> 4
+*** enumeratedList <Array>
+    - an array of strings representing items... when you refer to this
+      parameter in your bundle, you will use the index of the item
+      rather than the actual string
+**** Item 1 <String>
+**** Item 2 <String>
+**** Item n <string>
+*** default <Number> {0 ... last item of list-1}
+    - a number representing the item in the list you wish to have
+      initially selected
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** help <String>
+    - information displayed to the user when hovering mouse
+
+** Array
+   The array is not currently implemented, but it probably should
+   be. As such this is what the documentation would be. Change as
+   needed.
+*** optionIdentifier <String> RRF<TaskName><ParamName>
+    - this will match the string you define in your key
+*** displayName <String>
+    - the name displayed to the user
+*** type <Number> 5
+*** default <Array>
+    - an array of items of any plist type; it is the bundles
+      responsibility to resolve the types of the following items
+**** Item 1 <any-type>
+**** Item 2 <any-type>
+**** Item 3 <any-type>
+*** allowsEdit <Boolean> check/uncheck
+    - this will almost always be yes (check)
+*** allowsNull <Boolean> check/uncheck
+    - this will more often than not be no (uncheck)
+*** help <String>
+    - information displayed to the user when hovering mouse
+*** (optional) maxItems <Number>
+    - integer representing the maximum amount of items allowed in the
+      array
+*** (optional) minItems <Number>
+    - integer representing the minimum amount of items allowed in the
+      array
+* Examples
+** Manifest File Opened In Plist Editor
+   [[./img/manifest_edit_plist.png]]
+** Manifest File Read From Disk
+   #+begin_src xml
+   <dict>
+     <key>optionIdentifier</key>
+     <string>RRFNotificationTaskName</string>
+     <key>displayName</key>
+     <string>Task Name</string>
+     <key>type</key>
+     <integer>0</integer>
+     <key>default</key>
+     <string>Notification</string>
+     <key>allowsEdit</key>
+     <true/>
+     <key>allowsNull</key>
+     <false/>
+     <key>help</key>
+     <string>The task name will be appended to the name of the data file</string>
+   </dict>
+   #+end_src   
+

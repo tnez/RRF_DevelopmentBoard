@@ -65,6 +65,7 @@
 
     img {
 	border: none;
+        padding: 1em;
     }
 
     .share img {

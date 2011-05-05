@@ -1,0 +1,286 @@
+
+#+TITLE: RRF Development Board - Bundles
+#+LANGUAGE: en
+#+EMAIL: tnesland at gmail dot com
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+STYLE: </style><link rel="stylesheet" href="../../../css/org.css" type="text/css" />
+
+
+* High Level Overview
+  
+  The bundle is loaded through cooperation between the session
+  controller and the bundle controller that exists in the shared
+  framework. Because of this, much of the internals of the bundles
+  operation can be hidden from a custom bundle component. This is done
+  in hopes of making the development of individual, custom bundles as
+  quick and easy as possible, as well as providing the glue to piece
+  these differing components together as one cohesive package.
+
+** Bundle Loading Process
+
+  #+begin_src plantuml :file "./img/bundleLoad_sequence.png"
+@startuml
+
+participant theSession << (I,green) >>
+participant TKComponentController << (C,yellow) >>
+participant aController << (I,green) >>
+participant yourBundle << (I,green) >>
+participant aNoteCenter << (I,green) >>
+
+[-> theSession: launchComponentWithID
+activate theSession
+
+theSession -> TKComponentController : loadFromDefinition
+activate TKComponentController
+
+create aController
+TKComponentController -> aController : new
+activate aController
+aController --> TKComponentController : new controller
+deactivate aController
+
+TKComponentController -> aController : setDefinition
+TKComponentController --> theSession : new controller
+deactivate TKComponentController
+
+alt bundle is cleared to begin
+
+  theSession -> aController : begin
+  activate aController
+  aController -\ aNoteCenter : TKComponentWillBeginNotification
+
+  create yourBundle
+  aController -> yourBundle : new
+  activate yourBundle
+  yourBundle --> aController : new bundle
+  deactivate yourBundle
+
+  alt bundle should recover
+    aController -> yourBundle : recover
+  else normal case
+    aController -> yourBundle : setup
+  end
+
+  aController -> yourBundle : begin
+  aController -\ aNoteCenter : TKComponentDidBeginNotification
+  aController --> theSession
+  deactivate aController
+  [<- theSession: YES
+  deactivate theSession
+
+  ...your bundle does its thing...
+
+  yourBundle --> aController : componentDidFinish
+  note right of aController
+     This is where the component
+     controller will handle
+     writing data to files and
+     cleaning other clean up
+     duties. Your bundle may
+     participate in these
+     activities by implementing
+     certain optional methods.
+  end note
+  aController -> yourBundle : tearDown
+  aController -> yourBundle : release
+  destroy yourBundle
+  
+  aController -\ aNoteCenter : TKComponentDidFinishNotification
+
+else not cleared to begin
+
+  [<- theSession: NO
+  deactivate theSession
+
+end
+
+@enduml
+  #+end_src
+
+  #+results:
+  [[file:./img/bundleLoad_sequence.png]]
+
+* Documentation
+
+** Guide to writing a new bundle
+
+*** Make Sure Your Software Is Up-Do-Date
+    
+    - You should be using an up-to-date version of the shared utility
+      framework. See instructions for [[../tk-utility/index.html#Installation][installation]].
+    - You should also have an up-to-date version of the bundle
+      template. See instructions for [[./bundle-template/index.html#Installation][installation]].
+
+*** Create Your Project
+
+    - Open Xcode
+    - Select New Project
+    - In the dialog box that is displayed, select Bundle as type of
+      project, and RRF Bundle as type of bundle
+      [[./img/create_bundle_project.png]]
+    - (Optional) If you are going to be checking this project into
+      git, remove the existing git directory, and re-initialize as a
+      git repository, and make an initial commit.
+      : cd (project-dir)
+      : rm -rf .git
+      : git init
+      : git add .
+      : git commit -m "Initial commit"
+
+*** Define Bundle Parameters
+
+    - For each item you would like to parameterize add an entry such
+      as the following to your bundle controller's header:
+      #+begin_src C
+      NSString * const RRFYourParameterNameKey;
+      #+end_src
+      and to your bundle controller's implementation file:
+      #+begin_src C
+      NSString * const RRFYourParameterNameKey = @"RRFYourParameterName";
+      #+end_src
+      notice the absence of 'Key' in the actual string.
+
+    - For each parameter you have defined, you will need to add an
+      entry to the *TKComponentOptions* section of your bundle's
+      manifest file, which is a plist file that can be found in the
+      Resources group of your project. Each parameter should have a
+      dictionary which may look something like this:
+      #+begin_src xml
+      <dict>
+        <key>optionIdentifier</key>
+        <string>RRFNotificationTaskName</string>
+        <key>displayName</key>
+        <string>Task Name</string>
+        <key>type</key>
+        <integer>0</integer>
+        <key>default</key>
+        <string>Notification</string>
+        <key>allowsEdit</key>
+        <true/>
+        <key>allowsNull</key>
+        <false/>
+        <key>help</key>
+        <string>The task name will be appended to the name of the data file</string>
+      </dict>
+      #+end_src
+      The rules for creating parameter entries of different types are
+      many and can be found here: [[./how_to_define_parameters_in_manifest.html][how to define parameters in the
+      manifest]].
+
+*** Create And Setup Your Interface
+
+    - Open up your bundles *.xib* file in and begin adding elements to
+      the main view.
+    - Any with which you need to connect should be connected through
+      the file's owner element
+      [[./img/ib_document_window.png]]
+      [[./img/files_owner_connection_panel.png]]
+    - Outlet items can be accessed in your code any time after the
+      point in the setup method where the *nib bundle* is loaded:
+      #+begin_src C
+        // LOAD NIB
+        // ...
+        if([NSBundle loadNibNamed:RRFNotificationMainNibNameKey owner:self]) {
+          // SETUP THE INTERFACE VALUES
+          // ...
+          [view setMyChar:secretKeyCombo];
+          [view setMyMods:secretMods];
+          [[view window] makeFirstResponder:view];
+        } else {
+          // nib did not load, so throw error
+          [self registerError:@"Could not load Nib file"];
+        }
+      #+end_src
+    - Note: Variables that are to be connected to elements in the
+      interface should usually be declared with the following
+      property.
+      #+begin_src C
+        @property (assign) IBOutlet id someElement;
+      #+end_src
+
+*** Implement Your Code
+    
+    - Any initialization should be done in the *setup* method. This
+      might include grabbing your parameter values from the
+      definition. Ex:
+      #+begin_src C
+        [self setBaseString:[definition valueForKey:RRFNotificationBaseStringKey]];
+        [self setSecretKeyCombo:[[definition valueForKey:RRFNotificationSecretKeyComboKey] lowercaseString]];
+      #+end_src
+    - Anything your component needs to to when it starts, without the
+      prompting of user input (maybe something time-based), should be
+      implemented in the *begin* method.
+    - Override *shouldRecover* and *recover* if you wish to be able to
+      recover mid-component. There is some information in the comments
+      of the template, but unfortunately the implementation of these
+      two methods might be very different for different components.
+    - You can use the defined macros to simplify the process of
+      data-logging. *RRFLogToTemp(fmt, ...)* will log strings (it
+      works just like *NSLog()*) to a temporary data file that gets
+      appended to our final data file at the end of the
+      component. Sometimes, data logging by appending requires a more
+      complex structure. In this case, multiple temporary files can be
+      used in conjunction with the *RRFLogToFile(filename,fmt,...)*
+      macro. This still works like a redirected *NSLog()* but logs to
+      a tempfile with the specified filename rather than the default
+      tempfile.
+    - When your bundle has finished its work, it should send:
+      #+begin_src C
+        [delegate componentDidFinish: self];
+      #+end_src
+      This will notify the over-seeing component controller the we
+      should begin the tear-down process.
+    - In the *tearDown* method it is mandatory that you must remove
+      any tempfiles (even the default) that your bundle was using. It
+      is also mandatory to remove our bundle as a registered
+      observer. Your *tearDown* method may often look similar to:
+      #+begin_src C
+        - (void)tearDown {
+          // any finalization should be done here:
+          // ...
+          // remove any temporary data files (uncomment below to use default)
+          NSError *tFileMoveError = nil;
+          [[NSFileManager defaultManager] 
+           removeItemAtPath:RRFPathToTempFile([delegate defaultTempFile])
+        error:&tFileMoveError];
+          // ...
+          // if we created additional tempfiles we will need to remove them
+          // as well
+          // ...
+          // check if there was an error removing the temporary data files
+          if(tFileMoveError) {
+            ELog(@"%@",[tFileMoveError localizedDescription]);
+            [tFileMoveError release]; tFileMoveError=nil;
+          }
+          // de-register any possible notifications
+          [[NSNotificationCenter defaultCenter] removeObserver:self];
+        }
+      #+end_src
+      
+*** Test Your Code
+
+    - To test your bundle, set the Xcode target to *MockApplication*
+      and the configuration to *Debug*:
+      [[./img/xcode_debug_config.png]]
+      Build and Go while operation is not as you would expect.
+    - Feel free to make use of both the *DLog(fmt,...)* and
+      *ELog(fmt,...)* macros. *DLog(fmt,...)* will log to console only
+      when the project is set to *Debug* and should be used for
+      passing information about the internal state as a help while you
+      are figuring things out. *ELog(fmt,...)* will log to console
+      always, and can be used as an error log in order to help debug
+      errors that may happen in production.
+
+*** Release Your Code
+
+    - Double-check for bugs.
+    - Open up your bundle's *Info.plist* and increment the version
+      number according to whatever logic you are using to name your
+      bundle's versions:
+      [[./img/inc_version_num.png]]
+    - Set the Xcode target to *YourBundleName* and the configuration
+      to *Release*:
+      [[./img/xcode_release_config.png]]
+    - Build the code
+    - Add the resulting bundle
+      
