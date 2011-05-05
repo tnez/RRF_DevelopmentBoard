@@ -1,0 +1,92 @@
+
+#+TITLE: RRF Development Board - Session Controller
+#+LANGUAGE: en
+#+EMAIL: tnesland at gmail dot com
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+STYLE: </style><link rel="stylesheet" href="../../css/org.css" type="text/css" />
+
+
+* Installation / Update Process
+#+<<Installation>>
+
+  - Download the most current session controller from the [[../../release/tk-session/][release dir]].
+
+  - Move the file (unpacking if needed) to:
+
+    : /Applications
+
+  - Bundle pack is included in the session controller, but if you
+    think it may not be up-to-date, follow the bundle pack [[../projects/bundles/user-documentation.html#Installation][install
+    notes]].
+
+  - If you haven't already, [[../projects/tk-utility/index.html#Installation][install the shared utility framework]].
+
+* Session Configuration File
+
+** Overview
+
+   Each session is defined and driven by a session configuration file
+   which contains definitions for session-global values as well as the
+   parameters and jump values for individual components.
+
+   Session configuration files must use the *.session* extension
+   rather than the usual *.plist* allow launching from the finder.
+
+   Below is a sample session configuration file for a session that
+   achieves the following behavior:
+   
+   : Protocol 0224 logging data to ~/Desktop/DataFiles/...
+   : -----------------------------------------------------
+   : Wait For the User to Click
+   : Visual Analog Scale
+   : Pause for 2 Minutes
+   : Visual Analog Scale
+   : Exit
+   
+   #+BEGIN_SRC XML
+<root>
+  <key>RRFSessionProtocol</key>
+  <string>0126</string>
+  <key>RRFSessionDataDirectory</key>
+  <string>~/Desktop/DataFiles/</string>
+  <key>RRFSessionComponents</key>
+  <dict>
+    <key>WFClick</key>
+    <dict>
+      <key>RRFComponentBundleIdentifier</key>
+      <string>com.rrf.WFClick</string>
+    </dict>
+    <key>VAS</key>
+    <dict>
+      <key>RRFVASQuestionFile</key>
+      <string>~/Desktop/Questions/QuestionSet_1.txt</string>
+    </dict>
+  </dict>
+</root>      
+
+   #+END_SRC
+
+** Editing
+
+   To edit an existing session configuration file, you must
+   right-click the file and specify that it be opened with your editor
+   application of choice.
+
+   The session configuration file is an apple property list file that
+   can be edited using apple's property list editor:
+
+   : "/Developer/Applications/Utilities/Property List Editor.app"
+
+   It is possible that the developer tools are not installed on your
+   current machine. In that case you can edit the session
+   configuration file as an xml file using a text editor such as:
+
+  : /Applications/TextEdit.app
+
+   However, editing XML in a text editor can be cumbersome. You can
+   also download and install a third-party property list editor such
+   as [[http://www.apple.com/downloads/macosx/development_tools/plisteditpro.html][Plist Edit Pro]].
+
+** Structure
+
+   

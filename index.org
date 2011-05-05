@@ -13,7 +13,7 @@
    Acts as the controller object for the entire session.
    
    - [[./release/tk-session][Downloads]]
-   - [[./projects/tk-session/user-documetation.html#Installation][Installation / Update Process]]
+   - [[./projects/tk-session/user-documentation.html#Installation][Installation / Update Process]]
    - [[./projects/tk-session/user-documentation.html][User Documentation]]
    - [[./projects/tk-session/index.html][Developer Documentation and Other Resources]]
 

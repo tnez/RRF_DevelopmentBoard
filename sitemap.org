@@ -1,5 +1,9 @@
 #+TITLE: Navigation
 
+   + projects
+     + tk-session
+       + [[file:projects/tk-session/user-documentation.org][RRF Development Board - Session Controller]]
+       + [[file:projects/tk-session/index.org][RRF Development Board - Session Controller]]
    + tracking
      + [[file:tracking/development.org][development]]
      + [[file:tracking/finish-ruby-link-script.org][finish-ruby-link-script]]

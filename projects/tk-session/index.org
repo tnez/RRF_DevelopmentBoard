@@ -1,0 +1,77 @@
+
+#+TITLE: RRF Development Board - Session Controller
+#+LANGUAGE: en
+#+EMAIL: tnesland at gmail dot com
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+STYLE: </style><link rel="stylesheet" href="../../css/org.css" type="text/css" />
+
+
+* High Level Overviews
+  
+  The session controller manages the session: gathering relavent
+  context information and launches components while valid components
+  exist to be launched.
+  #+begin_src plantuml :file "./img/hl_launch_activity.png"
+
+@startuml
+partition AppDelegate {
+(*) --> [session file opened with finder] "initialize with file"
+note right
+   - read session config file
+     from disk
+   - read component definitions
+     from disk
+end note
+--> "prompt for subject info"
+--> [user submits form] "begin"
+note right
+     - create tab delimited
+       subject file for back-
+       compatibility with stand-
+       alone applications
+     - set subject values
+     - bring up session window
+end note
+}
+
+partition Session {
+--> "run"
+note top
+  - register for notifications
+  - launch loggers and timers
+  - create data directory structure
+end note
+if "does regfile exist?"
+  -->[YES] "recover from crash"
+  note right
+    - re-read move queue from disk
+    - re-read registry from disk
+    - find last run component in history
+  end note
+  -->[last run comp] "launch component with id"
+else 
+  -->[NO] "begin new session"
+  note left
+    - initialize registry
+  end note
+  -->[first comp] "launch component with id"
+end if
+if "id == 'end'"
+  -->[YES] "tear down"
+else
+  -->[NO] "init component with definition"
+end if
+"component did finish" --> "get next component"
+--> [next component] "launch component with id"
+}
+partition "Component Bundle" {
+  "init component with definition" --> "start component"
+  --> "finish component"
+  --> "component did finish"
+}
+@enduml
+  #+end_src
+
+  #+results:
+  [[file:./img/hl_launch_activity.png]]
+

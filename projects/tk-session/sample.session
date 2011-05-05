@@ -1,0 +1,21 @@
+<root>
+  <key>RRFSessionProtocol</key>
+  <string>0126</string>
+  <key>RRFSessionDataDirectory</key>
+  <string>~/Desktop/DataFiles/</string>
+  <key>RRFSessionComponents</key>
+  <dict>
+    <key>WFClick</key>
+    <dict>
+      <key>RRFComponentBundleIdentifier</key>
+      <string>com.rrf.WFClick</string>
+    </dict>
+    <key>VAS</key>
+    <dict>
+      <key>RRFVASQuestionFile</key>
+      <string>~/Desktop/Questions/QuestionSet_1.txt</string>
+    </dict>
+  </dict>
+</root>      
+      
+      
