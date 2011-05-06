@@ -1,12 +1,16 @@
 #+TITLE: Navigation
 
    + projects
+     + bp
+       + [[file:projects/bp/index.org][RRF Development Board - Blood Pressure Cotroller]]
      + bundles
        + [[file:projects/bundles/how_to_define_parameters_in_manifest.org][How To Define Parameters In The Manifest File]]
        + [[file:projects/bundles/index.org][RRF Development Board - Bundles]]
      + tk-session
        + [[file:projects/tk-session/user-documentation.org][RRF Development Board - Session Controller]]
        + [[file:projects/tk-session/index.org][RRF Development Board - Session Controller]]
+     + tk-utility
+       + [[file:projects/tk-utility/index.org][RRF Development Board - Shared Utility Framework]]
    + tracking
      + [[file:tracking/development.org][development]]
      + [[file:tracking/finish-ruby-link-script.org][finish-ruby-link-script]]

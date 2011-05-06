@@ -3,90 +3,539 @@
 #+LANGUAGE: en
 #+EMAIL: tnesland at gmail dot com
 #+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+LINK_HOME: ../../index.html
 #+STYLE: </style><link rel="stylesheet" href="../../css/org.css" type="text/css" />
 
+The session controller manages the session: gathering relavent context
+information and launches components while valid components exist to be
+launched.
 
-* High Level Overviews
-  
-  The session controller manages the session: gathering relavent
-  context information and launches components while valid components
-  exist to be launched.
+* Change Log
 
+** 0.6
 
-  #+begin_src plantuml :file "./img/hl_launch_activity.png"
+   - Force text fields in setup dialog to update continuously to avoid
+     no-tab-no-commit bug.
+   - Re-factor registry so that it exists outside of the session and
+     writes to disk on a background thread.
+   - Implement method to retrieve value from registry by raw key path.
+   - Add documentation.
 
-@startuml
-partition AppDelegate {
-(*) --> [session file opened with finder] "initialize with file"
-note right
-   - read session config file
-     from disk
-   - read component definitions
-     from disk
-end note
---> "prompt for subject info"
---> [user submits form] "begin"
-note right
-     - create tab delimited
-       subject file for back-
-       compatibility with stand-
-       alone applications
-     - set subject values
-     - bring up session window
-end note
-}
+** 0.5.1
 
-partition Session {
---> "run"
-note top
-  - register for notifications
-  - launch loggers and timers
-  - create data directory structure
-end note
-if "does regfile exist?"
-  -->[YES] "recover from crash"
-  note right
-    - re-read move queue from disk
-    - re-read registry from disk
-    - find last run component in history
-  end note
-  -->[last run comp] "launch component with id"
-else 
-  -->[NO] "begin new session"
-  note left
-    - initialize registry
-  end note
-  -->[first comp] "launch component with id"
-end if
-if "id == 'end'"
-  -->[YES] "tear down"
-else
-  -->[NO] "init component with definition"
-end if
-"component did finish" --> "get next component"
---> [next component] "launch component with id"
-}
-partition "Component Bundle" {
-  "init component with definition" --> "start component"
-  --> "finish component"
-  --> "component did finish"
-}
-@enduml
-  #+end_src
+   - Clean up data file output
+   - Implement requested data file directory structure
+     : {DataDir}/Protocol/Subject/Session/DataFile
+   - Consolidate datafiles from stand-alone applications.
 
-  #+results:
-  [[file:./img/hl_launch_activity.png]]
+** 0.5
+
+   - Original release.
 
 * Documentation
 
+** Installation
+
+   - Download the most current [[../../release/tk-session/][release]] extracting if needed
+   - Move the *TK-Session.app* to
+     : /Applications
+
+** Configuring A Session
+
+   - The session configuration file is an xml property list file to
+     which we assign the *.session* file extension. It can be edited
+     using Apple's *Property List Editor* or a third-party application
+     such as *PlistEditPro*.
+   - The session configuration file should contains the following
+     top-level keys:
+     : components     // components key is a dictionary containing
+     :                // a nested dictionary for each component
+     : dataDirectory  // where data should be moved at completion
+     : protocol       // protocol matching this configuration
+     : startTask      // the task that should run at launch
+   - The components key should then be populated with a dictionary for
+     each intended component named with a unique task name.
+   - Each added component dictionary should contain a *definition*
+     dictionary and a *jumps* array. The *definition* dictionary can
+     be generated for you if you open up your target bundle in Xcode,
+     run the MockApplication, populate the configuration screen with
+     intended values, and click *Generate Definition*. The jumps array
+     should contain the key of the component which you would like this
+     component to jump to next. In some cases there may be multiple
+     jump entries, such as in the case of a *Loop* bundle, where it
+     will be jumping to one component under one condition and another
+     based on a different condition.
+   - click to view a [[./img/session_config_view.png][sample configuration file]] being edited
+   - here is a sample configuration file in its entirety:
+     #+begin_src xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>components</key>
+	<dict>
+		<key>ARS</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFARSAdjective0</key>
+				<string>Not at all</string>
+				<key>RRFARSAdjective1</key>
+				<string>A little</string>
+				<key>RRFARSAdjective2</key>
+				<string>Moderately</string>
+				<key>RRFARSAdjective3</key>
+				<string>Quite a bit</string>
+				<key>RRFARSAdjective4</key>
+				<string>Extremely</string>
+				<key>RRFARSDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFARSQuestionAccessMethod</key>
+				<integer>0</integer>
+				<key>RRFARSQuestionFile</key>
+				<string>~/Desktop/SupportFiles/ARS_qs1.tsv</string>
+				<key>RRFARSRatingsStartAtZero</key>
+				<true/>
+				<key>RRFARSTaskName</key>
+				<string>ARS</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.ARS</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFARS</string>
+				<key>TKComponentName</key>
+				<string>ARS</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>VAS</string>
+			</array>
+		</dict>
+		<key>Alarm1</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFAlarmDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFAlarmPrompt</key>
+				<string>Alarm #1</string>
+				<key>RRFAlarmTaskName</key>
+				<string>Alarm1</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Alarm</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFAlarm</string>
+				<key>TKComponentName</key>
+				<string>Alarm</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>WaitForClick2</string>
+			</array>
+		</dict>
+		<key>Alarm2</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFAlarmDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFAlarmPrompt</key>
+				<string>Alarm #2</string>
+				<key>RRFAlarmTaskName</key>
+				<string>Alarm2</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Alarm</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFAlarm</string>
+				<key>TKComponentName</key>
+				<string>Alarm</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>WaitForClick</string>
+			</array>
+		</dict>
+		<key>CuedRT</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>TKComponentCocoaAppInputDir</key>
+				<string>~/Desktop/apps/DATA</string>
+				<key>TKComponentCocoaAppOutputDir</key>
+				<string>~/Desktop/apps/DATA</string>
+				<key>TKComponentCocoaAppOutputFileNamesAppendage</key>
+				<array>
+					<string>CRT</string>
+				</array>
+				<key>TKComponentCocoaAppOutputFilesToCopy</key>
+				<array>
+					<string>CRT.data</string>
+				</array>
+				<key>TKComponentCocoaAppPath</key>
+				<string>~/Desktop/apps/CuedRT.app</string>
+				<key>TKComponentCocoaAppShouldRenameOutputFiles</key>
+				<true/>
+				<key>TKComponentCocoaAppShouldUseRelativePaths</key>
+				<false/>
+				<key>TKComponentCocoaAppSupportFiles</key>
+				<array>
+					<string>~/Desktop/TK-Session.app/_TEMP/current.info</string>
+				</array>
+				<key>TKComponentCocoaAppTaskName</key>
+				<string>CRT</string>
+				<key>TKComponentDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>TKComponentName</key>
+				<string>CRT</string>
+				<key>TKComponentType</key>
+				<integer>1</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>DSST</string>
+			</array>
+		</dict>
+		<key>DSST</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>TKComponentCocoaAppInputDir</key>
+				<string>~/Desktop/apps/DATA</string>
+				<key>TKComponentCocoaAppOutputDir</key>
+				<string>~/Desktop/apps/DATA</string>
+				<key>TKComponentCocoaAppOutputFileNamesAppendage</key>
+				<array>
+					<string>DSST</string>
+				</array>
+				<key>TKComponentCocoaAppOutputFilesToCopy</key>
+				<array>
+					<string>DSST.txt</string>
+				</array>
+				<key>TKComponentCocoaAppPath</key>
+				<string>~/Desktop/apps/DSST.app</string>
+				<key>TKComponentCocoaAppShouldRenameOutputFiles</key>
+				<true/>
+				<key>TKComponentCocoaAppShouldUseRelativePaths</key>
+				<false/>
+				<key>TKComponentCocoaAppSupportFiles</key>
+				<array>
+					<string>~/Desktop/TK-Session.app/_TEMP/current.info</string>
+				</array>
+				<key>TKComponentCocoaAppTaskName</key>
+				<string>DSST</string>
+				<key>TKComponentDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>TKComponentName</key>
+				<string>DSST</string>
+				<key>TKComponentType</key>
+				<integer>1</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>NBack</string>
+			</array>
+		</dict>
+		<key>Loop1</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFLoopDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFLoopTargetRunCount</key>
+				<integer>1</integer>
+				<key>RRFLoopTaskName</key>
+				<string>Loop1</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Loop</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFLoop</string>
+				<key>TKComponentName</key>
+				<string>Loop</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Pause1</string>
+				<string>Loop2</string>
+			</array>
+		</dict>
+		<key>Loop2</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFLoopDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFLoopTargetRunCount</key>
+				<integer>2</integer>
+				<key>RRFLoopTaskName</key>
+				<string>Loop2</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Loop</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFLoop</string>
+				<key>TKComponentName</key>
+				<string>Loop</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Pause3</string>
+				<string>end</string>
+			</array>
+		</dict>
+		<key>NBack</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFNBackBlockSetCount</key>
+				<integer>4</integer>
+				<key>RRFNBackCueDirectory</key>
+				<string>~/Desktop/SupportFiles/NBackCues</string>
+				<key>RRFNBackCueDuration</key>
+				<integer>500</integer>
+				<key>RRFNBackDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFNBackInterBlockDuration</key>
+				<integer>8000</integer>
+				<key>RRFNBackInterTrialDuration</key>
+				<integer>2000</integer>
+				<key>RRFNBackMaxNCondition</key>
+				<integer>3</integer>
+				<key>RRFNBackMinNCondition</key>
+				<integer>0</integer>
+				<key>RRFNBackPoolSize</key>
+				<integer>5</integer>
+				<key>RRFNBackTargetCount</key>
+				<integer>7</integer>
+				<key>RRFNBackTaskName</key>
+				<string>NBack</string>
+				<key>RRFNBackTrialCount</key>
+				<integer>21</integer>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.NBack</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFNBack</string>
+				<key>TKComponentName</key>
+				<string>NBack</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Loop1</string>
+			</array>
+		</dict>
+		<key>Pause1</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFPauseComponentReference</key>
+				<string></string>
+				<key>RRFPauseDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFPauseDuration</key>
+				<integer>3600</integer>
+				<key>RRFPauseMode</key>
+				<integer>0</integer>
+				<key>RRFPauseTaskName</key>
+				<string>Pause</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Pause</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFPause</string>
+				<key>TKComponentName</key>
+				<string>Pause</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Alarm1</string>
+			</array>
+		</dict>
+		<key>Pause2</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFPauseComponentReference</key>
+				<string></string>
+				<key>RRFPauseDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFPauseDuration</key>
+				<integer>3600</integer>
+				<key>RRFPauseMode</key>
+				<integer>0</integer>
+				<key>RRFPauseTaskName</key>
+				<string>Pause</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Pause</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFPause</string>
+				<key>TKComponentName</key>
+				<string>Pause</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Alarm2</string>
+			</array>
+		</dict>
+		<key>Pause3</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFPauseComponentReference</key>
+				<string>ARS</string>
+				<key>RRFPauseDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFPauseDuration</key>
+				<integer>3600</integer>
+				<key>RRFPauseMode</key>
+				<integer>1</integer>
+				<key>RRFPauseTaskName</key>
+				<string>Pause</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.Pause</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFPause</string>
+				<key>TKComponentName</key>
+				<string>Pause</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Alarm2</string>
+			</array>
+		</dict>
+		<key>VAS</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.vas</string>
+				<key>TKComponentBundleName</key>
+				<string>ComRrfComponentVas</string>
+				<key>TKComponentName</key>
+				<string>Visual Analog Scale</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+				<key>TKVasDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>TKVasLeftPrompt</key>
+				<string>Not at all</string>
+				<key>TKVasMaxValue</key>
+				<integer>99</integer>
+				<key>TKVasMiddlePrompt</key>
+				<string></string>
+				<key>TKVasMinValue</key>
+				<integer>0</integer>
+				<key>TKVasNumberOfIntendedQuestions</key>
+				<integer>0</integer>
+				<key>TKVasNumberOfTickMarks</key>
+				<integer>2</integer>
+				<key>TKVasQuestionAccessMethod</key>
+				<integer>0</integer>
+				<key>TKVasQuestionFile</key>
+				<string>~/Desktop/SupportFiles/VAS_qs1.tsv</string>
+				<key>TKVasRightPrompt</key>
+				<string>Extremely</string>
+				<key>TKVasTaskName</key>
+				<string>VAS</string>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>CuedRT</string>
+			</array>
+		</dict>
+		<key>WaitForClick</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFClickReadyDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFClickReadyTaskName</key>
+				<string>WFClick</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.ClickReady</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFClickReady</string>
+				<key>TKComponentName</key>
+				<string>ClickReady</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>ARS</string>
+			</array>
+		</dict>
+		<key>WaitForClick2</key>
+		<dict>
+			<key>definition</key>
+			<dict>
+				<key>RRFClickReadyDataDirectory</key>
+				<string>~/Desktop/DataFiles</string>
+				<key>RRFClickReadyTaskName</key>
+				<string>WFClick</string>
+				<key>TKComponentBundleIdentifier</key>
+				<string>com.rrf.component.ClickReady</string>
+				<key>TKComponentBundleName</key>
+				<string>RRFClickReady</string>
+				<key>TKComponentName</key>
+				<string>ClickReady</string>
+				<key>TKComponentType</key>
+				<integer>0</integer>
+			</dict>
+			<key>jumps</key>
+			<array>
+				<string>Pause2</string>
+			</array>
+		</dict>
+	</dict>
+	<key>creationDate</key>
+	<date>2010-12-27T18:52:29Z</date>
+	<key>dataDirectory</key>
+	<string>~/Desktop/DataFiles</string>
+	<key>description</key>
+	<string>This is a demo protocol developed for testing purposes</string>
+	<key>lastRun</key>
+	<date>2010-12-27T18:54:00Z</date>
+	<key>modifiedDate</key>
+	<date>2010-12-27T18:52:41Z</date>
+	<key>protocol</key>
+	<string>0000</string>
+	<key>startTask</key>
+	<string>WaitForClick</string>
+	<key>status</key>
+	<integer>0</integer>
+</dict>
+</plist>
+
+     #+end_src
+
+** Running A Session
+   
+   - To run a session, simply browse to your target's session
+     configuration file and double-click or open throught the finder.
+   - You will be presented with the following screen:
+     [[./img/session_setup_view.png]]
+   - Enter information and click begin
+   - The session will start
+
 ** Formal Documentation
 
-   [[./dox/html/index.html][TK-Session Documentation]]
+   [[./dox/html/annotated.html][TK-Session Documentation]]
 
    The formal documentation has been generated by Doxygen. Information
    about formatting in-code comments can be found at the Doxygen
    website.
 
-** Common Procedures
-
-   

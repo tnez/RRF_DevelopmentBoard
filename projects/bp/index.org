@@ -1,0 +1,45 @@
+#+TITLE: RRF Development Board - Blood Pressure Cotroller
+#+LANGUAGE: en
+#+EMAIL: tnesland at gmail dot com
+#+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
+#+LINK_HOME: ../../index.html
+#+STYLE: </style><link rel="stylesheet" href="../../css/org.css" type="text/css" />
+
+The Blood Pressure Controller controls the Dinamap Pro 200 Blood
+Pressure Machine
+
+* Change Log
+
+** 1.3
+
+   - Simplify error presentation and fix error handling (previously
+     error codes were being presented multiple times for each error).
+
+** 1.2
+
+   - Initial release.
+
+* Documentation
+
+** Installation
+
+   - Simply download the most current [[../../release/bp][release]], extracting if needed,
+     and move to any place you choose.
+
+** How To Enable Dinamap Remote Control
+
+   - using the menu on the Dinamap's display select More ==> Service
+   - a keypad will display
+   - using the rotary wheel enter the sequence 2 2 1 3
+   - the service menu will appear
+   - select System ==> Comms
+   - toggle the Remote Op. box so that a check-mark appears beside
+   - select OK to back out of the Comms menu
+   - power off the machine to exit from the service menu (I haven't been able to find a better method to exit the service menu)
+   - upon powering on the changes should be saved
+
+* Downloads
+
+  - [[../../release/bp][releases]]
+  - [[../../release/dev_directory.zip][source code]]
+  - [[./bp_manuals.zip][Blood Pressure Manuals]]

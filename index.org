@@ -5,7 +5,6 @@
 #+OPTIONS: H:2 num:nil toc:2 \n:nil @"t ::t |:t *:t TeX:t author:nil <:t
 #+STYLE: </style><link rel="stylesheet" href="./css/org.css" type="text/css" />
 
-
 * Components
 
 ** TK-Session
@@ -13,9 +12,8 @@
    Acts as the controller object for the entire session.
    
    - [[./release/tk-session][Downloads]]
-   - [[./projects/tk-session/user-documentation.html#Installation][Installation / Update Process]]
-   - [[./projects/tk-session/user-documentation.html][User Documentation]]
-   - [[./projects/tk-session/index.html][Developer Documentation and Other Resources]]
+   - [[./projects/tk-session/index.html#Installation][Installation / Update Process]]
+   - [[./projects/tk-session/index.html][Project Page]]
 
 ** TK-Utility
 
@@ -23,43 +21,32 @@
    component bundles.
 
    - [[./release/tk-utility][Downloads]] 
-   - [[./projects/tk-utility/user-documetation.html#Installation][Installation / Update Process]] 
-   - [[./projects/tk-utility/index.html][Developer Documentation and Other Resources]]
+   - [[./projects/tk-utility/index.html#Installation][Installation / Update Process]]
+   - [[./projects/tk-utility/index.html][Project Page]]
 
 ** Bundles
-
-   Bundle Package
-    - [[./release/bundle-package][Download]]
-    - [[./projects/bundles/index.html#Installation][Installation / Update Process]]
-    - [[How do I know if my bundles are up to date?][Check If Package Is Up-To-Date]]
-
-   Individual Bundles
-    - [[./release/bundles][Download]]
-    - [[./projects/bundles/index.html#Installation][Installation / Update Process]]
-
-   Bundle Template
-    - [[./release/template][Download]]
-    - [[./projects/template/index.html#Installation][Installation / Update Process]]
-    - [[./project/template/index.html][Step-By-Step Guide For Creating A Bundle]]
+   - [[./release/bundles][Downloads]]
+   - [[./projects/bundles/index.html#Installation][Installation / Update Process]]
+   - [[./projects/bundles/index.html#sec-2_2][Step-By-Step Guide For Creating A Bundle]]
+   - [[How do I know if my bundles are up to date?][Check If Bundles Are Up-To-Date]]
+   - [[./projects/bundles/index.html][Project Page]]
 
 ** Blood Pressure Controller
 
-   Controller for <i>DINAMAP PRO 200 </i>
+   Controller for *DINAMAP PRO 200*
 
    - [[./release/bp][Downloads]]
-   - [[./projects/bp/user-documentation.html#Installation][Installation / Update Process]]
-   - [[./projects/bp/user-documentation.html][User Documentation]]
-   - [[./projects/bp/index.html][Developer Documentation and Other Resources]]
+   - [[./projects/bp/index.html][Project Page]]
 
 * FAQ
 
 ** What is the procedure to install every component on a new machine?
    
-   1) Install the shared utility framework. See [[./projects/tk-utility/user-documentation.html][notes]].
-   2) Install the session controller. See [[./projects/tk-session/user-documentation.html][notes]].
-   3) If bundles are out of date ([[How do I know if my bundles are up to date?][How do I know if my bundles are up
-      to date?]]), download and install current bundle package. See
-      [[./projects/bundles/index.html][notes]].
+   1) Install the shared utility framework. See [[./projects/tk-utility/index.html#Installation][notes]].
+   2) Install the session controller. See [[./projects/tk-session/index.html#Installation][notes]].
+   3) If bundles are out of date ([[How do I know if my bundles are up
+      to date?][How do I know if my bundles are up to date?]]), download and install
+      current bundle package. See [[./projects/bundles/index.html#Installation][notes]].
 
 ** The session is jumping to a component in the middle of the session instead of starting at the beginning. How do I prevent this?
    
@@ -90,64 +77,8 @@
    look into the Contents directory of each bundle and read the
    version number from the plist file.
 
-* User Manual
-  :LOGBOOK:
-  - Note taken on [2011-04-28 Thu 10:17] \\
-    I need to verify links before I publish all this.
-  :END:
-
-** Fresh Install
-
-*** Setup the shared utility framework
-
-    - Download TK-Utility: [[./release/tk-utility/tk-utility-current.zip][current release]]
-    - Move the file (unpacking if needed) to /Library/Frameworks
-
-*** Setup the session controller
-
-    - Download TK-Session: [[./release/tk-session/tk-session-current.zip][current release]
-    - Move the file (unpacking if needed) to /Applications
-
-*** Create a session configuration file
-
-    - see notes on creating a session configuration file [[./notes][===>]]
-
-** Update Session Controller
-
-   - Download the session controller from: [[./release/tk-session/tk-session-current.zip][current release]]
-   - Move the file (unpacking if needed) to:
-     : /Applications
-   - Download most current bundle pack (this may be the same version
-     as is already included in the session.
     
-** Update Utility Framework
+* Raw Source Code
 
-   - Download the utility framework from: [[./release/tk-utility/tk-utility-current.zip][current release]]
-   - Move the file (unpacking if needed) to:
-     : /Library/Frameworks
-   - Update to newest version of session controller if not already in
-     place
+  Here is *everything*: [[./release/dev_directory.zip][all teh codez]]
 
-** Install/Update Component Bundle
-
-*** Option 1 -- Install/Update Entire Bundle Pack
-    
-    - Download the current bundle pack: [[./releases/bundles/bundle-pack-current.zip][current release]]
-    - Move the file (unpacking if needed) to:
-      : /Applications/TK-Session.app/Contents/Plugins
-      (creating the directory if it does not already exist)
-
-*** Option 2 -- Install/Update Specific Bundle
-
-    - Download the latest release of your target bundle from: [[./release/bundles/index.html][all bundles]]
-    - Move the file (unpacking if needed) to:
-      : /Applications/TK-Session.app/Contents/Plugins
-
-** NEXT Create a Session Configuration File
-
-   The session configuration file is the driving force behind the
-   session. It should contain all information required to determine
-   the structure of a given session.
-
-   You can view documentation in the browser as [[./dox/how-to-create-a-session-config-file.html][HTML]] or download as a
-   [[./dox/how-to-create-a-session-config-file.pdf][PDF]].
